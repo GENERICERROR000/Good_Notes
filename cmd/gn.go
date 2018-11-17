@@ -25,7 +25,7 @@ import (
 
 var cfgFile string
 var noteDir string
-const DEFAULT_NOTEPATH string = ".gnote"
+const DEFAULT_NOTEPATH string = ".good_notes"
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
