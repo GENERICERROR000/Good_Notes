@@ -24,6 +24,8 @@ import (
 )
 
 var cfgFile string
+var noteDir string
+const DEFAULT_NOTEPATH string = ".good_notes"
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
@@ -42,11 +44,13 @@ func Execute() {
 
 func init() {
 	cobra.OnInitialize(initConfig)
+	cobra.OnInitialize(initNoteDir)
 
 	// Here you will define your flags and configuration settings.
 	// Cobra supports persistent flags, which, if defined here,
 	// will be global for your application.
 	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.GOOD_NOTES.yaml)")
+	rootCmd.PersistentFlags().StringVar(&noteDir, "note-dir", "", "note directory (default is $HOME/.gnote)")
 
 	// Cobra also supports local flags, which will only run
 	// when this action is called directly.
@@ -76,5 +80,37 @@ func initConfig() {
 	// If a config file is found, read it in.
 	if err := viper.ReadInConfig(); err == nil {
 		fmt.Println("Using config file:", viper.ConfigFileUsed())
+	}
+}
+
+func initNoteDir() {
+	if noteDir == "" {
+		home, err := homedir.Dir()
+		if err != nil {
+			fmt.Println(err)
+			os.Exit(1)
+		}
+		path := home + "/" + DEFAULT_NOTEPATH
+		if _, err := os.Stat(path); os.IsNotExist(err) {
+			filemode := os.FileMode(448) // Translates to 0700	
+			err := os.Mkdir(path, filemode)
+			if err != nil {
+				fmt.Println(err)
+				os.Exit(1)
+			}
+		} else {
+			finfo, err := os.Lstat(path)
+			if err != nil {
+				fmt.Println(err)
+				os.Exit(1)
+			}
+
+			if !finfo.Mode().IsDir() {
+				fmt.Printf(`ERROR: A file exists at the default GOOD_NOTES directory
+location: %s, and no other directory was specified. Exiting
+`, path)
+				os.Exit(1)
+			}
+		}
 	}
 }
