@@ -1,4 +1,4 @@
-// Copyright © 2018 NAME HERE nkernis, alexnovak 
+// Copyright © 2018 NAME HERE nkernis, alexnovak
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -25,6 +25,8 @@ import (
 
 var cfgFile string
 var noteDir string
+var editCmd string
+
 const DEFAULT_NOTEPATH string = ".good_notes"
 
 // rootCmd represents the base command when called without any subcommands
@@ -32,6 +34,9 @@ var rootCmd = &cobra.Command{
 	Use:   "gn",
 	Short: "Use to take many a good note",
 }
+
+
+
 
 // Execute adds all child commands to the root command and sets flags appropriately.
 // This is called by main.main(). It only needs to happen once to the rootCmd.
@@ -51,6 +56,7 @@ func init() {
 	// will be global for your application.
 	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.GOOD_NOTES.yaml)")
 	rootCmd.PersistentFlags().StringVar(&noteDir, "note-dir", "", "note directory (default is $HOME/.gnote)")
+	rootCmd.PersistentFlags().StringVar(&editCmd, "editor", "vi", "Editor command (default is vi)")
 
 	// Cobra also supports local flags, which will only run
 	// when this action is called directly.
@@ -92,7 +98,7 @@ func initNoteDir() {
 		}
 		path := home + "/" + DEFAULT_NOTEPATH
 		if _, err := os.Stat(path); os.IsNotExist(err) {
-			filemode := os.FileMode(448) // Translates to 0700	
+			filemode := os.FileMode(448) // Translates to 0700
 			err := os.Mkdir(path, filemode)
 			if err != nil {
 				fmt.Println(err)
