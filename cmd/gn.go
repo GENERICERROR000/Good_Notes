@@ -31,6 +31,12 @@ const DEFAULT_NOTEPATH string = ".good_notes"
 var rootCmd = &cobra.Command{
 	Use:   "gn",
 	Short: "Use to take many a good note",
+	Long: `I
+Can't
+Believe
+It's
+Not
+Butter`,
 }
 
 // Execute adds all child commands to the root command and sets flags appropriately.
@@ -49,8 +55,8 @@ func init() {
 	// Here you will define your flags and configuration settings.
 	// Cobra supports persistent flags, which, if defined here,
 	// will be global for your application.
-	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.GOOD_NOTES.yaml)")
-	rootCmd.PersistentFlags().StringVar(&noteDir, "note-dir", "", "note directory (default is $HOME/.gnote)")
+	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.good_notes_rc)")
+	rootCmd.PersistentFlags().StringVar(&noteDir, "note-dir", "", "note directory (default is $HOME/.good_notes)")
 
 	// Cobra also supports local flags, which will only run
 	// when this action is called directly.
@@ -72,7 +78,7 @@ func initConfig() {
 
 		// Search config in home directory with name ".GOOD_NOTES" (without extension).
 		viper.AddConfigPath(home)
-		viper.SetConfigName(".GOOD_NOTES")
+		viper.SetConfigName(".good_notes")
 	}
 
 	viper.AutomaticEnv() // read in environment variables that match
