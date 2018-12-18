@@ -50,22 +50,16 @@ func Execute() {
 
 func init() {
 	cobra.OnInitialize(initConfig, initNoteDir)
-	//cobra.OnInitialize(initNoteDir)
 
 	// Here you will define your flags and configuration settings.
 	// Cobra supports persistent flags, which, if defined here,
 	// will be global for your application.
 	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.good_notes_rc)")
 	rootCmd.PersistentFlags().StringVar(&noteDir, "note-dir", "", "note directory (default is $HOME/.good_notes)")
-
-	// Cobra also supports local flags, which will only run
-	// when this action is called directly.
-	rootCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }
 
 // initConfig reads in config file and ENV variables if set.
 func initConfig() {
-	fmt.Println("asdadsfdsfsd")
 	if cfgFile != "" {
 		// Use config file from the flag.
 		viper.SetConfigFile(cfgFile)
@@ -77,17 +71,19 @@ func initConfig() {
 			os.Exit(1)
 		}
 
-		// Search config in home directory with name ".GOOD_NOTES" (without extension).
 		viper.AddConfigPath(home)
-		viper.SetConfigName(".good_notes")
+		viper.SetConfigType("yaml")
+		viper.SetConfigName(".good_notes_rc")
 	}
 
-	viper.AutomaticEnv() // read in environment variables that match
+	// read in environment variables that match
+	viper.AutomaticEnv()
 
 	// If a config file is found, read it in.
 	if err := viper.ReadInConfig(); err == nil {
 		fmt.Println("Using config file:", viper.ConfigFileUsed())
 	}
+	fmt.Println("Using config file:", viper.ConfigFileUsed())
 }
 
 func initNoteDir() {
@@ -98,7 +94,6 @@ func initNoteDir() {
 			os.Exit(1)
 		}
 		path := home + "/" + DEFAULT_NOTEPATH
-		fmt.Println(path)
 		if _, err := os.Stat(path); os.IsNotExist(err) {
 			filemode := os.FileMode(448) // Translates to 0700	
 			err := os.Mkdir(path, filemode)
@@ -114,7 +109,7 @@ func initNoteDir() {
 			}
 
 			if !finfo.Mode().IsDir() {
-				fmt.Printf(`ERROR: A file exists at the default GOOD_NOTES directory
+				fmt.Printf(`ERROR: A file exists at the default .good_notes directory
 location: %s, and no other directory was specified. Exiting
 `, path)
 				os.Exit(1)
