@@ -1,4 +1,4 @@
-// Copyright © 2018 NAME HERE nkernis, alexnovak 
+// Copyright © 2018 Noah Kernis & Alex Novak
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -49,8 +49,8 @@ func Execute() {
 }
 
 func init() {
-	cobra.OnInitialize(initConfig)
-	cobra.OnInitialize(initNoteDir)
+	cobra.OnInitialize(initConfig, initNoteDir)
+	//cobra.OnInitialize(initNoteDir)
 
 	// Here you will define your flags and configuration settings.
 	// Cobra supports persistent flags, which, if defined here,
@@ -65,6 +65,7 @@ func init() {
 
 // initConfig reads in config file and ENV variables if set.
 func initConfig() {
+	fmt.Println("asdadsfdsfsd")
 	if cfgFile != "" {
 		// Use config file from the flag.
 		viper.SetConfigFile(cfgFile)
@@ -97,6 +98,7 @@ func initNoteDir() {
 			os.Exit(1)
 		}
 		path := home + "/" + DEFAULT_NOTEPATH
+		fmt.Println(path)
 		if _, err := os.Stat(path); os.IsNotExist(err) {
 			filemode := os.FileMode(448) // Translates to 0700	
 			err := os.Mkdir(path, filemode)
