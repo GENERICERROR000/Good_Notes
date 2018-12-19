@@ -71,9 +71,9 @@ func initConfig() {
 			os.Exit(1)
 		}
 
-		viper.AddConfigPath(home)
+		cfgFile = home + "/.good_notes_rc"
+		viper.SetConfigFile(cfgFile)
 		viper.SetConfigType("yaml")
-		viper.SetConfigName(".good_notes_rc")
 	}
 
 	// read in environment variables that match
@@ -81,13 +81,8 @@ func initConfig() {
 
 	// If a config file is found, read it in.
 	if err := viper.ReadInConfig(); err != nil {
-		fmt.Println(err)
-		os.Exit(1)
-	} else {
-		fmt.Println("Using config file:", viper.ConfigFileUsed())
+		panic(fmt.Errorf("Fatal error config file: %s \n", err))
 	}
-
-	fmt.Println("Using config file:", viper.ConfigFileUsed())
 }
 
 func initNoteDir() {
