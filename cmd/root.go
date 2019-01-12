@@ -23,9 +23,12 @@ import (
 	"github.com/spf13/viper"
 )
 
+const DEFAULT_NOTE string = "default.note"
+const DEFAULT_NOTEPATH string = ".good_notes"
+const DEFAULT_NOTEPATH_CONFIG string = ".good_notes_rc"
 var cfgFile string
 var noteDir string
-const DEFAULT_NOTEPATH string = ".good_notes"
+var defaultNote string
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
@@ -49,13 +52,14 @@ func Execute() {
 }
 
 func init() {
-	cobra.OnInitialize(initConfig, initNoteDir)
+	cobra.OnInitialize(initConfig, initNoteDir, initDefaultNote)
 
 	// Here you will define your flags and configuration settings.
 	// Cobra supports persistent flags, which, if defined here,
 	// will be global for your application.
 	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.good_notes_rc)")
-	rootCmd.PersistentFlags().StringVar(&noteDir, "note-dir", "", "note directory (default is $HOME/.good_notes)")
+	rootCmd.PersistentFlags().StringVar(&noteDir, "note-dir", "", "note directory (default is $HOME/.good_notes/)")
+	rootCmd.PersistentFlags().StringVar(&defaultNote, "default-note", "", "default note (default is $HOME/.good_notes/default.note)")
 }
 
 // initConfig reads in config file and ENV variables if set.
@@ -71,7 +75,7 @@ func initConfig() {
 			os.Exit(1)
 		}
 
-		cfgFile = home + "/.good_notes_rc"
+		cfgFile = home + "/" + DEFAULT_NOTEPATH_CONFIG
 		viper.SetConfigFile(cfgFile)
 		viper.SetConfigType("yaml")
 	}
@@ -81,7 +85,7 @@ func initConfig() {
 
 	// If a config file is found, read it in.
 	if err := viper.ReadInConfig(); err != nil {
-		panic(fmt.Errorf("Fatal error config file: %s \n", err))
+		panic(fmt.Errorf("Fatal error config file: %s", err))
 	}
 }
 
@@ -92,27 +96,48 @@ func initNoteDir() {
 			fmt.Println(err)
 			os.Exit(1)
 		}
-		path := home + "/" + DEFAULT_NOTEPATH
-		if _, err := os.Stat(path); os.IsNotExist(err) {
-			filemode := os.FileMode(448) // Translates to 0700	
-			err := os.Mkdir(path, filemode)
+		noteDir := home + "/" + DEFAULT_NOTEPATH
+		if _, err := os.Stat(noteDir); os.IsNotExist(err) {
+			filemode := os.FileMode(448) // Translates to 0700
+			err := os.Mkdir(noteDir, filemode)
 			if err != nil {
 				fmt.Println(err)
 				os.Exit(1)
 			}
 		} else {
-			finfo, err := os.Lstat(path)
+			finfo, err := os.Lstat(noteDir)
 			if err != nil {
 				fmt.Println(err)
 				os.Exit(1)
 			}
 
 			if !finfo.Mode().IsDir() {
-				fmt.Printf(`ERROR: A file exists at the default .good_notes directory
+				fmt.Printf(`ERROR: A file exists at the default .good_notes/ directory
 location: %s, and no other directory was specified. Exiting
-`, path)
+`, noteDir)
 				os.Exit(1)
 			}
 		}
 	}
+}
+
+func initDefaultNote()  {
+  	if defaultNote == "" {
+        home, err := homedir.Dir()
+      	if err != nil {
+      	    fmt.Println(err)
+      		os.Exit(1)
+      	}
+
+      	defaultNote := home + "/" + DEFAULT_NOTEPATH  + "/" + DEFAULT_NOTE
+        if _, err := os.Stat(defaultNote); os.IsNotExist(err) {
+            // Create Default Note
+            file, err := os.Create(defaultNote)
+            if err != nil {
+                fmt.Println(err)
+          		os.Exit(1)
+            }
+            file.Close()
+        }
+    }
 }
